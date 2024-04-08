@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, RouterProvider, Switch } from "react-router-dom";
-import HomePage from './components/HomePage'
-import AddPage from './components/AddPage'
+import HomePage from './pages/HomePage'
+import AddPage from './pages/AddPage'
 
 function App() {
     return (
