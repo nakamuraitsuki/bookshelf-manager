@@ -1,0 +1,14 @@
+.titleContainer {
+    text-align: center;
+}
+.title{
+    color: #0000cd;
+    margin-left: auto;
+    margin-right: auto;
+}
+.linkContainer {
+    text-align: right;
+}
+.link {
+    color:#0000cd;
+}
