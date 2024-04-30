@@ -12,8 +12,9 @@ type Book struct {
 	ID int `db:"id"`
 	Name string `db:"name"`
 	Author string `db:"author"`
+	Publisher string `db:"publisher"`
 	CreatedAt int64 `db:"created_at"`
-	Isbn string `db:"isbn"`
+	Isbn int64 `db:"isbn"`
 }
 
 type Booklist []Book
@@ -43,10 +44,11 @@ func dbConnect () *sqlx.DB {
 }
 
 func initDB() error {
-	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS books (
+	_, err := db.Exec(`CREATE TABLE IF NOT EXISTS bookList (
 		id INTEGER PRIMARY KEY,
 		name TEXT,
 		author TEXT,
+		publisher TEXT,
 		created_at INTEGER,
 		isbn INTEGER
 	)`)
