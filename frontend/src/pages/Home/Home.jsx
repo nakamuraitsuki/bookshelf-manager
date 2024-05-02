@@ -1,9 +1,9 @@
 import React from "react";
-import "./Home.css";
+import styles from "./Home.module.css";
 const Home = () => {
     return (
         <div>
-            <div className = "Title">
+            <div className = {styles.Title}>
                 <h1>home</h1>
             </div>
 
