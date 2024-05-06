@@ -59,7 +59,7 @@ func main() {
 	}
 	defer db.Close()
 
-	http.HandleFunc("api/posts", HandleCORS(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/posts", HandleCORS(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
 			createBook(w, r, db)
@@ -103,6 +103,7 @@ func HandleCORS(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// レスポンスヘッダーの設定
 		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
 
 		// リクエストヘッダーの設定

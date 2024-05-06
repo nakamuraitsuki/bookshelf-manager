@@ -1,6 +1,6 @@
-import React ,{useState} from "react";
+import React ,{useState, useEffect} from "react";
 import styles from "./Add.module.css"
-import {useNavigate} from 'react-router-dom';
+import {createRoutesFromElements, useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import {XMLParser, XMLBuilder} from 'fast-xml-parser';
 
@@ -10,9 +10,9 @@ const Add = () => {
         ignoreAttributes:false,
         attributeNamePrefix: '',
     });
-    const builder = new XMLBuilder();
     const [bookInfo,setBookInfo] = useState(null);
     const [error,setError] = useState(null);
+
     function addBook() {
         //入力を取ってくる
         const isbn = document.querySelector('input[name="isbn"]').value;
@@ -27,23 +27,39 @@ const Add = () => {
             const bookParsedData = parser.parse(recordData);
             //それぞれを格納
             const bookTitle = bookParsedData['srw_dc:dc']['dc:title'];
-            const bookCreator = bookParsedData['srw_dc:dc']['dc:creator'];
+            const bookAuthor = bookParsedData['srw_dc:dc']['dc:creator'];
             const bookPublisher = bookParsedData['srw_dc:dc']['dc:publisher'];
-            const bookLanguage = bookParsedData['srw_dc:dc']['dc:language'];
             
-            setBookInfo({ title: bookTitle, creator: bookCreator, publisher: bookPublisher, language: bookLanguage });
+            setBookInfo({ Title: bookTitle, Author: bookAuthor, Publisher: bookPublisher, ISBN: isbn});
 
             //デバック用
-            console.log('title:', bookInfo.title);
+            console.log('title:', bookTitle);
+
+
         })
         .catch(error => {
             setError('書籍情報の取得に失敗しました');
             console.error('APIerror:', error);
-        });
+        })
+        
+
 
         //とりあえずホーム画面に戻す後々確認画面に飛ばすようにしたい
         //navigate('/');
     }
+    
+    useEffect(() => {
+        if(bookInfo) {
+            axios
+                .post("http://localhost:8080/api/posts", bookInfo)
+                .then((response) => {
+                    console.log(response.data)
+                })
+                .catch((error) => {
+                    console.log("Error:",error);
+                });
+        }
+    }, [bookInfo])
 
     return (
         <div className={styles.Title}>
