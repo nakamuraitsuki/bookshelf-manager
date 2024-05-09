@@ -1,11 +1,10 @@
 import React ,{useState, useEffect} from "react";
 import styles from "./Add.module.css"
-import {createRoutesFromElements, useNavigate} from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import axios from 'axios';
 import {XMLParser, XMLBuilder} from 'fast-xml-parser';
 
 const Add = () => {
-    const navigate = useNavigate();
     const parser = new XMLParser({
         ignoreAttributes:false,
         attributeNamePrefix: '',
@@ -34,18 +33,12 @@ const Add = () => {
 
             //デバック用
             console.log('title:', bookTitle);
-
-
         })
         .catch(error => {
             setError('書籍情報の取得に失敗しました');
             console.error('APIerror:', error);
         })
         
-
-
-        //とりあえずホーム画面に戻す後々確認画面に飛ばすようにしたい
-        //navigate('/');
     }
     
     useEffect(() => {
@@ -66,11 +59,11 @@ const Add = () => {
             <h1>Add page</h1>
             <div>
                 {/*TODO:10桁又は13桁の数字しか入れられないようにする（空白を許さない） */}
-                <label>ISBN:<input id="isbn" name="isbn" type="text"/></label>                
+                <label className={styles.inputLabel}>ISBN<input className={styles.inputBox} id="isbn" name="isbn" type="number" required maxLength="13" minLength="10"/></label>                
             </div>
-            <div className={styles.submitButton}>
+            <div className={styles.submitButtonContainer}>
                 <label>
-                    <input 
+                    <input className={styles.submitButton}
                         type="submit" 
                         name="isbnSubmit" 
                         value="追加する"
