@@ -79,6 +79,9 @@ const Add = () => {
                     </button>
                 </form>
             </div>
+            <div>
+                <h1>追加履歴</h1>
+            </div>
         </div>
     );
 };
