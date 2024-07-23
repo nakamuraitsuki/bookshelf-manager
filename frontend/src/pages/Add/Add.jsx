@@ -8,8 +8,12 @@ const Add = () => {
         ignoreAttributes:false,
         attributeNamePrefix: '',
     });
+    //本の情報を入れるやつ
     const [bookInfo,setBookInfo] = useState(null);
+    //追加履歴配列
+    const [bookHistory,setBookHistory] = useState([]);
     const [error,setError] = useState(null);
+
 
     const addBook = (e) => {
         e.preventDefault();
@@ -42,12 +46,27 @@ const Add = () => {
         
     }
     
+    const getBookHistory = () => {
+        axios.get("http://localhost:8080/api/books").then((response)=>{
+            setBookHistory(response.data);
+            console.log("return",response);
+        });
+    };
+
+
     useEffect(() => {
+        getBookHistory();
+    },[]);
+
+
+    useEffect(() => {
+        //bookInfoの値が変わったらその値をデータベースに追加する．
         if(bookInfo) {
             axios
-                .post("http://localhost:8080/api/posts", bookInfo)
+                .post("http://localhost:8080/api/books", bookInfo)
                 .then((response) => {
                     console.log(response.data)
+                    getBookHistory();
                 })
                 .catch((error) => {
                     console.log("Error:",error);
@@ -80,7 +99,12 @@ const Add = () => {
                 </form>
             </div>
             <div>
-                <h1>追加履歴</h1>
+                <h2>追加履歴</h2>
+                {bookHistory.map((book)=>(
+                    <div key={book.id}>
+                        <p>{book.title}</p>
+                    </div>
+                ))}
             </div>
         </div>
     );
