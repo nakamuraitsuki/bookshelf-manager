@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"log"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -25,6 +26,12 @@ const (
 		);
 	`
 	insertBookQuery = "INSERT INTO books (title, author, publisher, isbn, created_at) VALUES (?, ?, ?, ?, ?)"
+	getBookHistoryQuery = `
+		SELECT *
+		FROM books 
+		ORDER BY created_at DESC
+		LIMIT 5;
+	`
 )
 
 type Book struct {
@@ -59,10 +66,12 @@ func main() {
 	}
 	defer db.Close()
 
-	http.HandleFunc("/api/posts", HandleCORS(func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/api/books", HandleCORS(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodPost:
 			createBook(w, r, db)
+		case http.MethodGet:
+			getBookHistory(w,r,db)
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
@@ -97,6 +106,29 @@ func createBook(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	respondJSON(w, http.StatusCreated, book)
 }
 
+func getBookHistory(w http.ResponseWriter, _ *http.Request, db *sql.DB) {
+	rows, err := db.Query(getBookHistoryQuery);
+	fmt.Println("クエリ処理完了")
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	var history  []Book
+
+	for rows.Next() {
+		var book Book
+		err := rows.Scan(&book.ID, &book.Title, &book.Author, &book.Publisher, &book.ISBN, &book.Quantity, &book.AvailableQuantity, &book.CreatedAt)
+		if err != nil {
+			log.Fatalln(err);
+		}
+
+		history = append(history, book)
+	}
+	fmt.Println("配列の用意完了")
+
+	respondJSON(w, http.StatusOK,history);
+	fmt.Println("return")
+}
 
 //以下触らない
 func HandleCORS(h http.HandlerFunc) http.HandlerFunc {

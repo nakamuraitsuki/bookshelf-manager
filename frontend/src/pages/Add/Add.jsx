@@ -1,21 +1,24 @@
 import React ,{useState, useEffect} from "react";
 import styles from "./Add.module.css"
-import {createRoutesFromElements, useNavigate} from 'react-router-dom';
 import axios from 'axios';
-import {XMLParser, XMLBuilder} from 'fast-xml-parser';
+import {XMLParser} from 'fast-xml-parser';
 
 const Add = () => {
-    const navigate = useNavigate();
     const parser = new XMLParser({
         ignoreAttributes:false,
         attributeNamePrefix: '',
     });
+    //本の情報を入れるやつ
     const [bookInfo,setBookInfo] = useState(null);
+    //追加履歴配列
+    const [bookHistory,setBookHistory] = useState([]);
     const [error,setError] = useState(null);
 
-    function addBook() {
-        //入力を取ってくる
-        const isbn = document.querySelector('input[name="isbn"]').value;
+
+    const addBook = (e) => {
+        e.preventDefault();
+        //formの中の、要素のうちのisbnの、valueを取ってくる
+        const isbn = e.target.elements.isbn.value;
         //国立国会図書館API
         const endpoint = `https://ndlsearch.ndl.go.jp/api/sru?operation=searchRetrieve&maximumRecords=1&query=isbn%3D${isbn}`;
 
@@ -34,26 +37,36 @@ const Add = () => {
 
             //デバック用
             console.log('title:', bookTitle);
-
-
+            e.target.reset();
         })
         .catch(error => {
             setError('書籍情報の取得に失敗しました');
             console.error('APIerror:', error);
         })
         
-
-
-        //とりあえずホーム画面に戻す後々確認画面に飛ばすようにしたい
-        //navigate('/');
     }
     
+    const getBookHistory = () => {
+        axios.get("http://localhost:8080/api/books").then((response)=>{
+            setBookHistory(response.data);
+            console.log("return",response);
+        });
+    };
+
+
     useEffect(() => {
+        getBookHistory();
+    },[]);
+
+
+    useEffect(() => {
+        //bookInfoの値が変わったらその値をデータベースに追加する．
         if(bookInfo) {
             axios
-                .post("http://localhost:8080/api/posts", bookInfo)
+                .post("http://localhost:8080/api/books", bookInfo)
                 .then((response) => {
                     console.log(response.data)
+                    getBookHistory();
                 })
                 .catch((error) => {
                     console.log("Error:",error);
@@ -65,20 +78,34 @@ const Add = () => {
         <div className={styles.Title}>
             <h1>Add page</h1>
             <div>
-                {/*TODO:10桁又は13桁の数字しか入れられないようにする（空白を許さない） */}
-                <label>ISBN:<input id="isbn" name="isbn" type="text"/></label>                
-            </div>
-            <div className={styles.submitButton}>
-                <label>
-                    <input 
-                        type="submit" 
-                        name="isbnSubmit" 
-                        value="追加する"
-                        onClick={addBook}
+                <form onSubmit={addBook}>
+                    <label className={styles.inputLabel}>ISBN</label>
+                    <input
+                        className={styles.inputBox}
+                        id="isbn"
+                        name="isbn"
+                        type="number"
+                        required
+                        maxLength={13}
+                        minLength={10}
+                        placeholder="ISBNを入力"
                     />
-                </label>
+                    <button
+                        className={styles.submitButton} 
+                        type="submit"
+                    >
+                        追加
+                    </button>
+                </form>
             </div>
-
+            <div>
+                <h2>追加履歴</h2>
+                {bookHistory.map((book)=>(
+                    <div key={book.id}>
+                        <p>{book.title}</p>
+                    </div>
+                ))}
+            </div>
         </div>
     );
 };
