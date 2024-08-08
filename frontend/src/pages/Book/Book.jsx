@@ -7,22 +7,23 @@ const Book = () => {
     /*slugは本のidにする予定*/
     const { id } = useParams();
     const [bookInfo,setBookInfo] = useState(null);
-    const endpoint = `http://localhost:8080/api/books/${id}`
+
     
     useEffect(() => {
+        const endpoint = `http://localhost:8080/api/books/${id}`
         axios.get(endpoint).then((response) => {
             setBookInfo(response.data);
         })
         .catch(error =>{
             console.error("Error:",error);
         });
-    },[]);
+        
+    },[id]);
     
     return (
         <div>
             <h1>つながってるお</h1>
-            <h1>{bookInfo.title}</h1>
-            <h2>{bookInfo.author}</h2>
+            {bookInfo ? <h1>{bookInfo.title}</h1>: <p>ふええ…見つからないよぉ</p>}
         </div>
     );
 };
