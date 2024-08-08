@@ -50,7 +50,10 @@ const Add = () => {
         axios.get("http://localhost:8080/api/books").then((response)=>{
             setBookHistory(response.data);
             console.log("return",response);
-        });
+        })
+        .catch((error) =>{
+            console.error("Error:",error);
+        })
     };
 
 

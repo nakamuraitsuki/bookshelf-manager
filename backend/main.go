@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"time"
 	"log"
+	"strings"
 
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -32,6 +33,7 @@ const (
 		ORDER BY created_at DESC
 		LIMIT 5;
 	`
+	getBookInfoQuery = "SELECT * FROM books WHERE id = ?"
 )
 
 type Book struct {
@@ -77,6 +79,15 @@ func main() {
 		}
 	}))
 
+	http.HandleFunc("/api/books/", HandleCORS(func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			getBookByID(w, r, db)
+		default:
+			w.WriteHeader(http.StatusMethodNotAllowed)
+		}
+	}))
+
 	fmt.Println("http://localhost:8080でサーバーを起動します")
 	http.ListenAndServe(":8080", nil)
 }
@@ -108,7 +119,7 @@ func createBook(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 
 func getBookHistory(w http.ResponseWriter, _ *http.Request, db *sql.DB) {
 	rows, err := db.Query(getBookHistoryQuery);
-	fmt.Println("クエリ処理完了")
+
 	if err != nil {
 		panic(err)
 	}
@@ -124,10 +135,36 @@ func getBookHistory(w http.ResponseWriter, _ *http.Request, db *sql.DB) {
 
 		history = append(history, book)
 	}
-	fmt.Println("配列の用意完了")
 
 	respondJSON(w, http.StatusOK,history);
-	fmt.Println("return")
+}
+
+func getBookByID(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	fmt.Println("get step 1")
+	path := strings.TrimPrefix(r.URL.Path, "/api/books/")
+	id := strings.TrimSpace(path)
+
+	if id == "" {
+		http.Error(w,"ID paramaeter is missing",http.StatusBadRequest)
+		return
+	}
+	fmt.Println("get step 2")
+	row := db.QueryRow(getBookInfoQuery,id);
+
+	fmt.Println("get step 3")
+	var book Book 
+	err := row.Scan(&book.ID, &book.Title, &book.Author, &book.Publisher, &book.ISBN, &book.Quantity, &book.AvailableQuantity, &book.CreatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			http.Error(w, "Book not found", http.StatusNotFound)
+		} else {
+			log.Println(err)
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+		}
+		return		
+	}
+	fmt.Println("get step 4")
+	respondJSON(w, http.StatusOK,book);
 }
 
 //以下触らない
