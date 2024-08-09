@@ -1,7 +1,9 @@
 import React ,{useState, useEffect} from "react";
 import styles from "./Add.module.css"
+import { InfoLink } from "../../components";
 import axios from 'axios';
 import {XMLParser} from 'fast-xml-parser';
+
 
 const Add = () => {
     const parser = new XMLParser({
@@ -105,7 +107,7 @@ const Add = () => {
                 <h2>追加履歴</h2>
                 {bookHistory.map((book)=>(
                     <div key={book.id}>
-                        <p>{book.title}</p>
+                        <InfoLink title={book.title} to={book.id}/>
                     </div>
                 ))}
             </div>
