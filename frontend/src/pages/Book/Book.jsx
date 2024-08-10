@@ -20,9 +20,17 @@ const Book = () => {
         
     },[]);
     
+    if(bookInfo == null){
+        return (
+            <div>
+                <h1>NOT  FOUND</h1>
+            </div>
+        );
+    }
+
     return (
         <div>
-            {bookInfo ? <p>『{bookInfo.title}』の詳細ページ</p>: <p>ふええ…見つからないよぉ</p>}
+            <p>『{bookInfo.title}』の詳細ページ</p>
         </div>
     );
 };
