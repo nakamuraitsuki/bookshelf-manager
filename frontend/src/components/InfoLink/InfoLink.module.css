@@ -1,0 +1,18 @@
+.card{
+    width:auto;
+    margin-left:3%;
+    margin-right:3%;
+    margin-top:12px;
+    display: block;
+    text-decoration: none;
+    background-color: #c5dffd;
+    color:black;
+    border: 1px solid #ddd; /* ボーダーの例 */
+    border-radius: 8px; /* 角を丸める */
+    padding: 16px;
+    transition: box-shadow 0.3s ease; /* ホバー時のアニメーション */
+}
+
+.title{
+    font-weight: bold;
+}

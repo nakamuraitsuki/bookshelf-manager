@@ -22,8 +22,7 @@ const Book = () => {
     
     return (
         <div>
-            <h1>つながってるお</h1>
-            {bookInfo ? <h1>{bookInfo.title}</h1>: <p>ふええ…見つからないよぉ</p>}
+            {bookInfo ? <p>『{bookInfo.title}』の詳細ページ</p>: <p>ふええ…見つからないよぉ</p>}
         </div>
     );
 };

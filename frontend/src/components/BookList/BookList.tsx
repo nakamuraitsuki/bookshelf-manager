@@ -1,5 +1,6 @@
 import React from "react";
 import { InfoLink } from "../InfoLink/InfoLink";
+import styles from "./BookList.module.css"
 type Props = {
     listTitle: string;
     bookList:{
@@ -26,7 +27,7 @@ export const BookList : React.FC<Props> = ({listTitle,bookList}) =>{
 
     return(
         <div>
-            <h2>{listTitle}</h2>
+            <h2 className={styles.title}>{listTitle}</h2>
             {bookList.map((book)=>(
                 <div key={book.id}>
                     <InfoLink title={book.title} to={book.id}/>
