@@ -12,3 +12,5 @@ node_modules/
 
 # *.db拡張子のファイルを無視
 *.db
+
+./backend/backend
