@@ -17,7 +17,7 @@ const Add = () => {
     const [error,setError] = useState(null);
 
 
-    const addBook = (e) => {
+    const catchBookInfo = (e) => {
         e.preventDefault();
         //formの中の、要素のうちのisbnの、valueを取ってくる
         const isbn = e.target.elements.isbn.value;
@@ -48,6 +48,21 @@ const Add = () => {
         
     }
     
+    const addBook = (bookInfo) => {
+        if(bookInfo) {
+            axios
+                .post("http://localhost:8080/api/books", bookInfo)
+                .then((response) => {
+                    console.log(response.data)
+                    //追加するたびに履歴配列を更新
+                    getBookHistory();
+                })
+                .catch((error) => {
+                    console.log("Error:",error);
+                });
+        }
+    }
+
     const getBookHistory = () => {
         axios.get("http://localhost:8080/api/books").then((response)=>{
             setBookHistory(response.data);
@@ -66,17 +81,7 @@ const Add = () => {
 
     useEffect(() => {
         //bookInfoの値が変わったらその値をデータベースに追加する．
-        if(bookInfo) {
-            axios
-                .post("http://localhost:8080/api/books", bookInfo)
-                .then((response) => {
-                    console.log(response.data)
-                    getBookHistory();
-                })
-                .catch((error) => {
-                    console.log("Error:",error);
-                });
-        }
+        addBook(bookInfo);
     }, [bookInfo])
 
 
@@ -84,7 +89,7 @@ const Add = () => {
         <div className={styles.Title}>
             <h1>Add page</h1>
             <div>
-                <form onSubmit={addBook}>
+                <form onSubmit={catchBookInfo}>
                     <label className={styles.inputLabel}>ISBN</label>
                     <input
                         className={styles.inputBox}
