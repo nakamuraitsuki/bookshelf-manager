@@ -1,6 +1,6 @@
 import React ,{useState, useEffect} from "react";
 import styles from "./Add.module.css"
-import { InfoLink } from "../../components";
+import { BookList } from "../../components"
 import axios from 'axios';
 import {XMLParser} from 'fast-xml-parser';
 
@@ -38,7 +38,7 @@ const Add = () => {
             setBookInfo({ Title: bookTitle, Author: bookAuthor, Publisher: bookPublisher, ISBN: isbn});
 
             //デバック用
-            console.log('title:', bookTitle);
+            console.log('国会図書館より', bookTitle);
             e.target.reset();
         })
         .catch(error => {
@@ -51,7 +51,7 @@ const Add = () => {
     const getBookHistory = () => {
         axios.get("http://localhost:8080/api/books").then((response)=>{
             setBookHistory(response.data);
-            console.log("return",response);
+            console.log("return1",response.data);
         })
         .catch((error) =>{
             console.error("Error:",error);
@@ -79,6 +79,7 @@ const Add = () => {
         }
     }, [bookInfo])
 
+
     return (
         <div className={styles.Title}>
             <h1>Add page</h1>
@@ -103,14 +104,7 @@ const Add = () => {
                     </button>
                 </form>
             </div>
-            <div>
-                <h2>追加履歴</h2>
-                {bookHistory.map((book)=>(
-                    <div key={book.id}>
-                        <InfoLink title={book.title} to={book.id}/>
-                    </div>
-                ))}
-            </div>
+            <BookList listTitle="追加履歴" bookList={bookHistory}/>
         </div>
     );
 };

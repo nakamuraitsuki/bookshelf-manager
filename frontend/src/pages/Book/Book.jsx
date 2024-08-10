@@ -18,7 +18,7 @@ const Book = () => {
             console.error("Error:",error);
         });
         
-    },[id]);
+    },[]);
     
     return (
         <div>
