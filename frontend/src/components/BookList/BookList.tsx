@@ -30,7 +30,7 @@ export const BookList : React.FC<Props> = ({listTitle,bookList}) =>{
             <h2 className={styles.title}>{listTitle}</h2>
             {bookList.map((book)=>(
                 <div key={book.id}>
-                    <InfoLink title={book.title} to={book.id}/>
+                    <InfoLink book={book} to={book.id}/>
                 </div>
             ))}
         </div>
