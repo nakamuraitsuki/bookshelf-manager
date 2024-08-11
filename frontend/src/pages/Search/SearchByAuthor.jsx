@@ -14,7 +14,7 @@ const SearchByAuthor = () =>{
 
         axios.get(`http://localhost:8080/api/search/byAuthor?author=${author}`)
         .then((response) =>{
-            setBookList[response.data];
+            setBookList(response.data);
         })
         .catch((error)=>{
             console.error("getListeError:",error);
