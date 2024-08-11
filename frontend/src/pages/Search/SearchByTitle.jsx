@@ -2,7 +2,8 @@ import React from "react";
 import { useState } from "react";
 import { InputForm } from "../../components";
 import { BookList } from "../../components";
-import styles from "./SearchByTitle.module.css"
+import { SearchSwitch } from "../../components";
+import styles from "./Search.module.css"
 import axios from "axios";
 
 const SearchByTitle = () =>{
@@ -22,9 +23,19 @@ const SearchByTitle = () =>{
     };
 
     return(
-        <div>
+        <div >
+            <h1 className={styles.title}>タイトルから検索</h1>
+            <div className={styles.container}>
+                <p className={styles.containerP}>検索方法</p>
+                <SearchSwitch
+                    left="タイトル"
+                    right="著者名"
+                    to="/search/byAuthor"
+                    switched 
+                />
+            </div>
+
             <InputForm
-                title="タイトル検索"
                 placeholder="キーワードを入力"
                 buttonText="検索"
                 onSubmit={catchBookList}

@@ -2,7 +2,6 @@ import React from "react";
 import styles from "./InputForm.module.css"
 
 type Props = {
-    title: string;
     placeholder: string;
     buttonText: string;
     onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
@@ -15,7 +14,6 @@ type Props = {
 }
 
 export const InputForm: React.FC<Props> = ({
-    title,
     placeholder,
     buttonText,
     onSubmit,
@@ -28,7 +26,6 @@ export const InputForm: React.FC<Props> = ({
 }) => {
     return (
         <div className={styles.field}>
-            <h1>{title}</h1>
             <form onSubmit={onSubmit}>
                 <label className={styles.inputLavel}>{inputLabel}</label>
                 <input

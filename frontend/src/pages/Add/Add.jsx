@@ -88,8 +88,8 @@ const Add = () => {
 
     return (
         <div className={styles.field}>
+            <h1>蔵書追加</h1>
             <InputForm
-                title="蔵書追加ページ"
                 placeholder="ISBNを入力"
                 buttonText="追加"
                 onSubmit={catchBookInfo}
