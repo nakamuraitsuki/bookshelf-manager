@@ -34,6 +34,7 @@ const (
 		LIMIT 5;
 	`
 	getBookInfoQuery = "SELECT * FROM books WHERE id = ?"
+	getBookByTitleQuery = "SELECT * FROM books WHERE title LIKE ?"
 )
 
 type Book struct {
@@ -86,6 +87,10 @@ func main() {
 		default:
 			w.WriteHeader(http.StatusMethodNotAllowed)
 		}
+	}))
+
+	http.HandleFunc("/api/search/byTitle", HandleCORS(func(w http.ResponseWriter, r *http.Request) {
+		getBookByTitle(w,r,db);
 	}))
 
 	fmt.Println("http://localhost:8080でサーバーを起動します")
@@ -166,6 +171,33 @@ func getBookByID(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 	fmt.Println("get step 4")
 	respondJSON(w, http.StatusOK,book);
 }
+
+func getBookByTitle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	query := r.URL.Query()
+	title := query.Get("title")
+	title = "%" + title + "%"
+
+	rows, err := db.Query(getBookByTitleQuery,title);
+	if err != nil {
+		panic(err);
+	}
+	defer rows.Close();
+
+	var books []Book;
+
+	for rows.Next() {
+		var book Book
+		err := rows.Scan(&book.ID, &book.Title, &book.Author, &book.Publisher, &book.ISBN, &book.Quantity, &book.AvailableQuantity, &book.CreatedAt)
+		if err != nil {
+			log.Fatalln("GetListError",err);
+		}
+
+		books = append(books, book);
+	}
+
+	respondJSON(w, http.StatusOK,books);
+}
+
 
 //以下触らない
 func HandleCORS(h http.HandlerFunc) http.HandlerFunc {

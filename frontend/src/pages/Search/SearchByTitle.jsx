@@ -11,7 +11,7 @@ const SearchByTitle = () =>{
         e.preventDefault();
 
         const title = e.target.elements.title.value;
-        axios.get(`http://localhost:8080/api/search/bytitle?title=${title}`)
+        axios.get(`http://localhost:8080/api/search/byTitle?title=${title}`)
         .then((response) => {
             if(response)
             setBookList(response.data);
