@@ -145,7 +145,6 @@ func getBookHistory(w http.ResponseWriter, _ *http.Request, db *sql.DB) {
 }
 
 func getBookByID(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	fmt.Println("get step 1")
 	path := strings.TrimPrefix(r.URL.Path, "/api/books/")
 	id := strings.TrimSpace(path)
 
@@ -153,10 +152,8 @@ func getBookByID(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		http.Error(w,"ID paramaeter is missing",http.StatusBadRequest)
 		return
 	}
-	fmt.Println("get step 2")
 	row := db.QueryRow(getBookInfoQuery,id);
 
-	fmt.Println("get step 3")
 	var book Book 
 	err := row.Scan(&book.ID, &book.Title, &book.Author, &book.Publisher, &book.ISBN, &book.Quantity, &book.AvailableQuantity, &book.CreatedAt)
 	if err != nil {
@@ -168,7 +165,6 @@ func getBookByID(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		}
 		return		
 	}
-	fmt.Println("get step 4")
 	respondJSON(w, http.StatusOK,book);
 }
 
