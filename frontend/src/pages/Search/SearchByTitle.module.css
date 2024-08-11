@@ -13,14 +13,6 @@
     -webkit-appearance: none;
 }
 
-.inputLabel {
-    font-size: 1.5rem;
-}
-
-.submitButtonContainer{
-    align-items: center;
-}
-
 .submitButton{
     border-radius:8px;
     width:150px;

@@ -86,7 +86,7 @@ const Add = () => {
 
 
     return (
-        <div className={styles.Title}>
+        <div className={styles.field}>
             <h1>Add page</h1>
             <div>
                 <form onSubmit={catchBookInfo}>
