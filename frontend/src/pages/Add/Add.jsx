@@ -1,7 +1,9 @@
 import React ,{useState, useEffect} from "react";
 import styles from "./Add.module.css"
+import { BookList } from "../../components"
 import axios from 'axios';
 import {XMLParser} from 'fast-xml-parser';
+
 
 const Add = () => {
     const parser = new XMLParser({
@@ -15,7 +17,7 @@ const Add = () => {
     const [error,setError] = useState(null);
 
 
-    const addBook = (e) => {
+    const catchBookInfo = (e) => {
         e.preventDefault();
         //formの中の、要素のうちのisbnの、valueを取ってくる
         const isbn = e.target.elements.isbn.value;
@@ -36,7 +38,7 @@ const Add = () => {
             setBookInfo({ Title: bookTitle, Author: bookAuthor, Publisher: bookPublisher, ISBN: isbn});
 
             //デバック用
-            console.log('title:', bookTitle);
+            console.log('国会図書館より', bookTitle);
             e.target.reset();
         })
         .catch(error => {
@@ -46,10 +48,25 @@ const Add = () => {
         
     }
     
+    const addBook = (bookInfo) => {
+        if(bookInfo) {
+            axios
+                .post("http://localhost:8080/api/books", bookInfo)
+                .then((response) => {
+                    console.log(response.data)
+                    //追加するたびに履歴配列を更新
+                    getBookHistory();
+                })
+                .catch((error) => {
+                    console.log("Error:",error);
+                });
+        }
+    }
+
     const getBookHistory = () => {
         axios.get("http://localhost:8080/api/books").then((response)=>{
             setBookHistory(response.data);
-            console.log("return",response);
+            console.log("return1",response.data);
         })
         .catch((error) =>{
             console.error("Error:",error);
@@ -64,24 +81,15 @@ const Add = () => {
 
     useEffect(() => {
         //bookInfoの値が変わったらその値をデータベースに追加する．
-        if(bookInfo) {
-            axios
-                .post("http://localhost:8080/api/books", bookInfo)
-                .then((response) => {
-                    console.log(response.data)
-                    getBookHistory();
-                })
-                .catch((error) => {
-                    console.log("Error:",error);
-                });
-        }
+        addBook(bookInfo);
     }, [bookInfo])
+
 
     return (
         <div className={styles.Title}>
             <h1>Add page</h1>
             <div>
-                <form onSubmit={addBook}>
+                <form onSubmit={catchBookInfo}>
                     <label className={styles.inputLabel}>ISBN</label>
                     <input
                         className={styles.inputBox}
@@ -101,14 +109,7 @@ const Add = () => {
                     </button>
                 </form>
             </div>
-            <div>
-                <h2>追加履歴</h2>
-                {bookHistory.map((book)=>(
-                    <div key={book.id}>
-                        <p>{book.title}</p>
-                    </div>
-                ))}
-            </div>
+            <BookList listTitle="追加履歴" bookList={bookHistory}/>
         </div>
     );
 };

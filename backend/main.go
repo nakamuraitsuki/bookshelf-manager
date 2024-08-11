@@ -130,7 +130,7 @@ func getBookHistory(w http.ResponseWriter, _ *http.Request, db *sql.DB) {
 		var book Book
 		err := rows.Scan(&book.ID, &book.Title, &book.Author, &book.Publisher, &book.ISBN, &book.Quantity, &book.AvailableQuantity, &book.CreatedAt)
 		if err != nil {
-			log.Fatalln(err);
+			log.Fatalln("GetHistryError",err);
 		}
 
 		history = append(history, book)

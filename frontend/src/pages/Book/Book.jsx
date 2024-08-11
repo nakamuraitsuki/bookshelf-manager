@@ -18,12 +18,19 @@ const Book = () => {
             console.error("Error:",error);
         });
         
-    },[id]);
+    },[]);
     
+    if(bookInfo == null){
+        return (
+            <div>
+                <h1>NOT  FOUND</h1>
+            </div>
+        );
+    }
+
     return (
         <div>
-            <h1>つながってるお</h1>
-            {bookInfo ? <h1>{bookInfo.title}</h1>: <p>ふええ…見つからないよぉ</p>}
+            <p>『{bookInfo.title}』の詳細ページ</p>
         </div>
     );
 };
