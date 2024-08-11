@@ -26,7 +26,7 @@ export const BookList : React.FC<Props> = ({listTitle,bookList}) =>{
     }
 
     return(
-        <div>
+        <div className={styles.field}>
             <h2 className={styles.title}>{listTitle}</h2>
             {bookList.map((book)=>(
                 <div key={book.id}>
