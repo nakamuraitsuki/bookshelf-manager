@@ -1,5 +1,6 @@
 import React from "react";
-import { useState,useEffect } from "react";
+import { useState } from "react";
+import { InputForm } from "../../components";
 import { BookList } from "../../components";
 import styles from "./SearchByTitle.module.css"
 import axios from "axios";
@@ -23,24 +24,18 @@ const SearchByTitle = () =>{
 
     return(
         <div className={styles.field}>
-            <h1>タイトル検索</h1>
-            <form onSubmit={catchBookList}>
-                <label className={styles.inputLabel}>検索</label>
-                <input
-                    className={styles.inputBox}
-                    id="title"
-                    name="title"
-                    type="text"
-                    required
-                    placeholder="タイトル"
-                />
-                <button
-                    className={styles.submitButton} 
-                    type="submit"
-                >
-                    検索
-                </button>
-            </form>
+            <InputForm
+                title="タイトル検索"
+                placeholder="キーワードを入力"
+                buttonText="検索"
+                onSubmit={catchBookList}
+                inputLabel="タイトル"
+                id="title"
+                type="text"
+                maxLength={100}
+                minLength={1}
+                required
+            />
             <BookList listTitle="検索結果" bookList={bookList}/>
         </div>
     );
