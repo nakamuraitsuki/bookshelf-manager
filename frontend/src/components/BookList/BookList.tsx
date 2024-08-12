@@ -20,13 +20,13 @@ export const BookList : React.FC<Props> = ({listTitle,bookList}) =>{
     if(bookList == null){
         return (
             <div>
-                <p>取得失敗</p>
+                <p>該当図書なし</p>
             </div>
         );
     }
 
     return(
-        <div>
+        <div className={styles.field}>
             <h2 className={styles.title}>{listTitle}</h2>
             {bookList.map((book)=>(
                 <div key={book.id}>

@@ -34,6 +34,8 @@ const (
 		LIMIT 5;
 	`
 	getBookInfoQuery = "SELECT * FROM books WHERE id = ?"
+	getBookByTitleQuery = "SELECT * FROM books WHERE title LIKE ?"
+	getBookByAuthorQuery = "SELECT * FROM books WHERE author LIKE ?"
 )
 
 type Book struct {
@@ -88,6 +90,14 @@ func main() {
 		}
 	}))
 
+	http.HandleFunc("/api/search/byTitle", HandleCORS(func(w http.ResponseWriter, r *http.Request) {
+		getBookByTitle(w,r,db);
+	}))
+
+	http.HandleFunc("/api/search/byAuthor", HandleCORS(func(w http.ResponseWriter, r *http.Request) {
+		getBookByAuthor(w,r,db);
+	}))
+
 	fmt.Println("http://localhost:8080でサーバーを起動します")
 	http.ListenAndServe(":8080", nil)
 }
@@ -140,7 +150,6 @@ func getBookHistory(w http.ResponseWriter, _ *http.Request, db *sql.DB) {
 }
 
 func getBookByID(w http.ResponseWriter, r *http.Request, db *sql.DB) {
-	fmt.Println("get step 1")
 	path := strings.TrimPrefix(r.URL.Path, "/api/books/")
 	id := strings.TrimSpace(path)
 
@@ -148,10 +157,8 @@ func getBookByID(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		http.Error(w,"ID paramaeter is missing",http.StatusBadRequest)
 		return
 	}
-	fmt.Println("get step 2")
 	row := db.QueryRow(getBookInfoQuery,id);
 
-	fmt.Println("get step 3")
 	var book Book 
 	err := row.Scan(&book.ID, &book.Title, &book.Author, &book.Publisher, &book.ISBN, &book.Quantity, &book.AvailableQuantity, &book.CreatedAt)
 	if err != nil {
@@ -163,8 +170,59 @@ func getBookByID(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		}
 		return		
 	}
-	fmt.Println("get step 4")
 	respondJSON(w, http.StatusOK,book);
+}
+
+func getBookByTitle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	query := r.URL.Query()
+	title := query.Get("title")
+	title = "%" + title + "%"
+
+	rows, err := db.Query(getBookByTitleQuery,title);
+	if err != nil {
+		panic(err);
+	}
+	defer rows.Close();
+
+	var books []Book;
+
+	for rows.Next() {
+		var book Book
+		err := rows.Scan(&book.ID, &book.Title, &book.Author, &book.Publisher, &book.ISBN, &book.Quantity, &book.AvailableQuantity, &book.CreatedAt)
+		if err != nil {
+			log.Fatalln("GetListError",err);
+		}
+
+		books = append(books, book);
+	}
+
+	respondJSON(w, http.StatusOK,books);
+}
+
+func getBookByAuthor(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+	query := r.URL.Query()
+	author := query.Get("author")
+	author = "%" + author + "%"
+
+	rows, err := db.Query(getBookByAuthorQuery,author);
+	if err != nil {
+		panic(err);
+	}
+	defer rows.Close();
+
+	var books []Book;
+
+	for rows.Next() {
+		var book Book
+		err := rows.Scan(&book.ID, &book.Title, &book.Author, &book.Publisher, &book.ISBN, &book.Quantity, &book.AvailableQuantity, &book.CreatedAt)
+		if err != nil {
+			log.Fatalln("GetListError",err);
+		}
+
+		books = append(books, book);
+	}
+
+	respondJSON(w, http.StatusOK,books);
 }
 
 //以下触らない

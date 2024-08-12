@@ -1,0 +1,10 @@
+.title{
+    text-align: center;
+}
+.container{
+    display:flex;
+    margin-bottom: 12px;
+}
+.containerP{
+    margin:3px;
+}

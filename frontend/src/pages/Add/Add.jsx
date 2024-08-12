@@ -1,6 +1,7 @@
 import React ,{useState, useEffect} from "react";
 import styles from "./Add.module.css"
 import { BookList } from "../../components"
+import { InputForm } from "../../components";
 import axios from 'axios';
 import {XMLParser} from 'fast-xml-parser';
 
@@ -86,31 +87,22 @@ const Add = () => {
 
 
     return (
-        <div className={styles.Title}>
-            <h1>Add page</h1>
-            <div>
-                <form onSubmit={catchBookInfo}>
-                    <label className={styles.inputLabel}>ISBN</label>
-                    <input
-                        className={styles.inputBox}
-                        id="isbn"
-                        name="isbn"
-                        type="number"
-                        required
-                        maxLength={13}
-                        minLength={10}
-                        placeholder="ISBNを入力"
-                    />
-                    <button
-                        className={styles.submitButton} 
-                        type="submit"
-                    >
-                        追加
-                    </button>
-                </form>
-            </div>
+        <div className={styles.field}>
+            <h1>蔵書追加</h1>
+            <InputForm
+                placeholder="ISBNを入力"
+                buttonText="追加"
+                onSubmit={catchBookInfo}
+                inputLabel="ISBN"
+                id="isbn"
+                type="number"
+                maxLength={13}
+                minLength={10}
+                required
+            />
             <BookList listTitle="追加履歴" bookList={bookHistory}/>
         </div>
+        
     );
 };
 

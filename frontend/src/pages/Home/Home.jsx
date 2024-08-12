@@ -9,6 +9,7 @@ const Home = () => {
             </div>
             <div>
                 <Link to="/add">蔵書追加はこちら</Link>
+                <Link to="/search/byTitle">検索はこちら</Link>
             </div>
         </div>
     )
