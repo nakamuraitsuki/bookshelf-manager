@@ -1,6 +1,6 @@
 import React ,{useState, useEffect} from "react";
 import styles from "./Add.module.css"
-import { BookList } from "../../components"
+import { BackButton, BookList } from "../../components"
 import { InputForm } from "../../components";
 import axios from 'axios';
 import {XMLParser} from 'fast-xml-parser';
@@ -88,6 +88,7 @@ const Add = () => {
 
     return (
         <div className={styles.field}>
+            <BackButton/>
             <h1>蔵書追加</h1>
             <InputForm
                 placeholder="ISBNを入力"

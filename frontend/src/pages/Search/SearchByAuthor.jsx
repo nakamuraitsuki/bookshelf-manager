@@ -23,7 +23,7 @@ const SearchByAuthor = () =>{
     };
 
     return (
-        <div>
+        <div className={styles.field}>
             <h1 className={styles.title}>著者から検索</h1>
             <div className={styles.container}>
                 <p className={styles.containerP}>検索方法</p>

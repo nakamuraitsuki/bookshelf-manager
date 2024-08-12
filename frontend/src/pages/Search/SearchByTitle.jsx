@@ -23,7 +23,7 @@ const SearchByTitle = () =>{
     };
 
     return(
-        <div >
+        <div className={styles.field}>
             <h1 className={styles.title}>タイトルから検索</h1>
             <div className={styles.container}>
                 <p className={styles.containerP}>検索方法</p>
