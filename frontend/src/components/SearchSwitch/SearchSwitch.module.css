@@ -43,7 +43,7 @@
     text-decoration: none;
 }
 .selectedLeft:hover{
-    background-color: #afc7e3;
+    background-color: #9ac7fb;
 }
 
 .selectedRight{
@@ -58,5 +58,5 @@
     text-decoration: none;
 }
 .selectedRight:hover{
-    background-color: #afc7e3;
+    background-color: #9ac7fb;
 }
