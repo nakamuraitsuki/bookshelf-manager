@@ -1,42 +1,17 @@
 package main
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"time"
-	"log"
 	"strings"
-
+	"time"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	_ "github.com/mattn/go-sqlite3"
 )
 
-const (
-	dbPath = "database.db"
-	createTableQuery = `
-		CREATE TABLE IF NOT EXISTS books (
-			id INTEGER PRIMARY KEY AUTOINCREMENT,
-			title TEXT NOT NULL,
-			author TEXT NOT NULL,
-			publisher TEXT NOT NULL,
-			isbn TEXT NOT NULL,
-			quantity INTEGER NOT NULL DEFAULT 1,
-			available_quantity INTEGER NOT NULL DEFAULT 1,
-			created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-		);
-	`
-	insertBookQuery = "INSERT INTO books (title, author, publisher, isbn, created_at) VALUES (?, ?, ?, ?, ?)"
-	getBookHistoryQuery = `
-		SELECT *
-		FROM books 
-		ORDER BY created_at DESC
-		LIMIT 5;
-	`
-	getBookInfoQuery = "SELECT * FROM books WHERE id = ?"
-	getBookByTitleQuery = "SELECT * FROM books WHERE title LIKE ?"
-	getBookByAuthorQuery = "SELECT * FROM books WHERE author LIKE ?"
-)
+const	dbPath = "database.db"
 
 type Book struct {
 	ID               int            `json:"id"`
@@ -49,26 +24,32 @@ type Book struct {
 	CreatedAt        time.Time      `json:"created_at"`
 }
 
+type User struct {
+	ID				int				`json:"id"`
+	Username		string			`json:"username"`
+	Email			string			`json:"email"`
+	PasswordHash	string			`json:"password_hash"`
+	CreatedAt		time.Time		`json:"created_at"`
+}
+
+var db *gorm.DB
+
 func init() {
-	db, err :=sql.Open("sqlite3", dbPath)
+	var err error
+	db, err = gorm.Open(sqlite.Open(dbPath),&gorm.Config{})
 	if err != nil {
 		fmt.Println("データベース接続失敗",err)
 		return
 	}
-	defer db.Close()
-
-	_,err = db.Exec(createTableQuery)
-	if err != nil {
-		panic(err)
-	}
+	
+	db.AutoMigrate(&Book{}, &User{})
 }
 
 func main() {
-	db,err := sql.Open("sqlite3", dbPath)
+	db,err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
-	defer db.Close()
 
 	http.HandleFunc("/api/books", HandleCORS(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -102,54 +83,37 @@ func main() {
 	http.ListenAndServe(":8080", nil)
 }
 
-func createBook(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+/*Bookテーブル-データ追加*/
+func createBook(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 	var book Book
+	/*情報受け取り*/
 	if err := decodeBody(r, &book); err != nil {
 		respondJSON(w, http.StatusBadRequest, err.Error())
 		return
 	}
-
-	now := time.Now()
-
-	result, err := db.Exec(insertBookQuery, book.Title, book.Author, book.Publisher, book.ISBN, now)
-	if err != nil {
-		panic(err)
+	/*データ追加*/
+	if err := db.Create(&book).Error; err != nil {
+		respondJSON(w,http.StatusInternalServerError,err.Error())
+		return
 	}
-
-	id, err := result.LastInsertId()
-	if err != nil {
-		panic(err)
-	}
-
-	book.ID = int(id)
-	book.CreatedAt = now
 
 	respondJSON(w, http.StatusCreated, book)
 }
 
-func getBookHistory(w http.ResponseWriter, _ *http.Request, db *sql.DB) {
-	rows, err := db.Query(getBookHistoryQuery);
-
-	if err != nil {
-		panic(err)
-	}
-	defer rows.Close()
+/*Bookテーブル-追加履歴（過去5件）取得*/
+func getBookHistory(w http.ResponseWriter, _ *http.Request, db *gorm.DB) {
 	var history  []Book
-
-	for rows.Next() {
-		var book Book
-		err := rows.Scan(&book.ID, &book.Title, &book.Author, &book.Publisher, &book.ISBN, &book.Quantity, &book.AvailableQuantity, &book.CreatedAt)
-		if err != nil {
-			log.Fatalln("GetHistryError",err);
-		}
-
-		history = append(history, book)
+	if err := db.Order("id desc").Limit(5).Find(&history).Error; err != nil {
+		respondJSON(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	respondJSON(w, http.StatusOK,history);
 }
 
-func getBookByID(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+/*Bookテーブル-IDから情報取得*/
+func getBookByID(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
+	/*APIからid取得*/
 	path := strings.TrimPrefix(r.URL.Path, "/api/books/")
 	id := strings.TrimSpace(path)
 
@@ -157,69 +121,44 @@ func getBookByID(w http.ResponseWriter, r *http.Request, db *sql.DB) {
 		http.Error(w,"ID paramaeter is missing",http.StatusBadRequest)
 		return
 	}
-	row := db.QueryRow(getBookInfoQuery,id);
 
+	/*dbから取得*/
 	var book Book 
-	err := row.Scan(&book.ID, &book.Title, &book.Author, &book.Publisher, &book.ISBN, &book.Quantity, &book.AvailableQuantity, &book.CreatedAt)
-	if err != nil {
-		if err == sql.ErrNoRows {
-			http.Error(w, "Book not found", http.StatusNotFound)
-		} else {
-			log.Println(err)
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-		}
-		return		
+	if err := db.First(&book, id).Error; err != nil {
+		respondJSON(w, http.StatusInternalServerError, err.Error())
+		return
 	}
+
 	respondJSON(w, http.StatusOK,book);
 }
 
-func getBookByTitle(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+/*Bookテーブル-タイトルあいまい検索*/
+func getBookByTitle(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
+	/*APIからタイトル取得*/
 	query := r.URL.Query()
 	title := query.Get("title")
 	title = "%" + title + "%"
 
-	rows, err := db.Query(getBookByTitleQuery,title);
-	if err != nil {
-		panic(err);
-	}
-	defer rows.Close();
-
 	var books []Book;
-
-	for rows.Next() {
-		var book Book
-		err := rows.Scan(&book.ID, &book.Title, &book.Author, &book.Publisher, &book.ISBN, &book.Quantity, &book.AvailableQuantity, &book.CreatedAt)
-		if err != nil {
-			log.Fatalln("GetListError",err);
-		}
-
-		books = append(books, book);
+	if err := db.Where("title LIKE ?", title).Limit(5).Find(&books).Error; err != nil {
+		respondJSON(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	respondJSON(w, http.StatusOK,books);
 }
 
-func getBookByAuthor(w http.ResponseWriter, r *http.Request, db *sql.DB) {
+/*Bookテーブル-著者あいまい検索*/
+func getBookByAuthor(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
+	/*APIから著者取得*/
 	query := r.URL.Query()
 	author := query.Get("author")
 	author = "%" + author + "%"
 
-	rows, err := db.Query(getBookByAuthorQuery,author);
-	if err != nil {
-		panic(err);
-	}
-	defer rows.Close();
-
 	var books []Book;
-
-	for rows.Next() {
-		var book Book
-		err := rows.Scan(&book.ID, &book.Title, &book.Author, &book.Publisher, &book.ISBN, &book.Quantity, &book.AvailableQuantity, &book.CreatedAt)
-		if err != nil {
-			log.Fatalln("GetListError",err);
-		}
-
-		books = append(books, book);
+	if err := db.Where("author LIKE ?", author).Limit(5).Find(&books).Error; err != nil {
+		respondJSON(w, http.StatusInternalServerError, err.Error())
+		return
 	}
 
 	respondJSON(w, http.StatusOK,books);
