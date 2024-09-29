@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
 import styles from './Mypage.module.css'
+import { BackButton } from '../../components'
 
 const Mypage = () => {
     const [username, setUsername] = useState('');
@@ -33,6 +34,7 @@ const Mypage = () => {
 
     return(
         <div>
+            <BackButton/>
             <h2>{username}のマイページ</h2>
             <img src={iconURL} alt='User Icon' className={styles.icon}/>
             

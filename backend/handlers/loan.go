@@ -5,7 +5,8 @@ import (
 	"backend/models"
 	"net/http"
 	"time"
-
+	"log"
+	"strconv"
 	"gorm.io/gorm"
 )
 
@@ -90,4 +91,36 @@ func ReturnBook(w http.ResponseWriter, r *http.Request) {
     }
 
 	respondJSON(w, http.StatusOK, info)
+}
+
+/*現在の貸出状況を取得*/
+func GetCurrentLoan(w http.ResponseWriter, r *http.Request) {
+	log.Println("関数が発火しました")
+	userIDStr := r.URL.Query().Get("userID")
+	bookIDStr := r.URL.Query().Get("bookID")
+	log.Println("IDを抜き取りました",userIDStr,bookIDStr)
+	// クエリパラメータを整数に変換
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+
+	bookID, err := strconv.ParseUint(bookIDStr, 10, 32)
+	if err != nil {
+		http.Error(w, "Invalid book ID", http.StatusBadRequest)
+		return
+	}
+	log.Println("整数に直しました")
+	var currentLoan models.CurrentLoan
+	if err := db.DB.Where("user_id = ? AND book_id = ?", userID, bookID).First(&currentLoan).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			http.Error(w, "No current loan found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "Failed to retrieve loan information", http.StatusInternalServerError)
+		return
+	}
+	log.Println("探索しました")
+	respondJSON(w, http.StatusOK, currentLoan)
 }
