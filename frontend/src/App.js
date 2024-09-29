@@ -19,6 +19,11 @@ function App() {
     return isAuthenticated ? children : <Navigate to="/login" />;
   }
 
+  const ProtectedLoginRoute = ({children}) => {
+    const { isAuthenticated} = useAuth();
+    return isAuthenticated ?<Navigate to="/mypage"/> : children;
+  }
+
   return (
     <div>
       <AuthProvider>
@@ -30,7 +35,13 @@ function App() {
             <Route path = "/book/:id" element={<Book/>}/>
             <Route path = "/search/*" element={<Search/>}/>
             <Route path = "/register" element={<Register/>}/>
-            <Route path = "/login" element={<Login/>}/>
+            <Route
+             path = "/login"
+             element={
+              <ProtectedLoginRoute>
+                <Login/>
+              </ProtectedLoginRoute>
+            }/>
             <Route
               path="mypage"
               element={
