@@ -15,20 +15,45 @@ header {
     font-weight: bold;
 }
 
-.username {
-    font-size: 1.5rem;
-    margin-right:20px;
-}
-
-.card{
+.user{
     width:auto;
     margin-left:12px;
     margin-right:12px;
     display: block;
     text-decoration: none;
+    color:black; 
+    padding: 16px;    
+}
+
+.userIcon{
+    width:1.5rem;
+    height:1.5rem;
+    border-radius: 50%;
+    object-fit:cover;
+    border:2px solid #ccc;
+    margin-right:10px; 
+    margin-bottom: 0;
+    padding-bottom: 0;
+    transition: box-shadow 0.3s ease;
+}
+
+.username {
+    font-size: 1.5rem;
+    margin-right:20px;
+}
+.user:hover{
+    background-color:#f9f9f9;
+}
+.card{
+    width:auto;
+    margin-left:12px;
+    margin-right:12px;
+    align-items: center;
+    display: block;
+    text-decoration: none;
     color:black;
     border-bottom: 1px solid #ddd; 
-    padding: 16px;
+    padding: 6px;
     transition: box-shadow 0.3s ease; /* ホバー時のアニメーション */
 }
 .card:hover{

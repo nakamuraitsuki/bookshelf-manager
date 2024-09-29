@@ -7,6 +7,7 @@ import axios from 'axios';
 export const Header: React.FC = () => {
     const {isAuthenticated, logout} = useAuth();
     const [username, setUsername] = useState<string | null>(null);
+    const [iconURL, setIconURL] = useState('');
     const [error, setError] = useState<string | null>(null);
 
     const fetchUserData = async () => {
@@ -19,6 +20,7 @@ export const Header: React.FC = () => {
                     },
                 });
                 setUsername(response.data.username);
+                setIconURL(response.data.iconURL);
             } else{
                 console.log("ログアウト状態")
             }
@@ -40,7 +42,8 @@ export const Header: React.FC = () => {
             <div className={styles.userCard}>
                 {isAuthenticated ? (
                     <div className={styles.userCard}>
-                        <Link to={'/mypage'} className={styles.card}>
+                        <Link to={'/mypage'} className={styles.user}>
+                            <img src={iconURL} alt="User icon" className={styles.userIcon}/>
                             <span className={styles.text}>{username}</span>
                         </Link>
 

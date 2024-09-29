@@ -44,6 +44,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	user := models.User{
 		Username: 		req.Username,
 		Email: 			req.Email,
+		IconURL: 		"https://cdn-icons-png.flaticon.com/512/9131/9131478.png",/*初期アイコン*/
 		PasswordHash: 	string(hashedPassword),
 		CreatedAt: 		time.Now(),
 	}
