@@ -5,40 +5,89 @@ import (
 	"backend/models"
 	"net/http"
 	"time"
+
+	"gorm.io/gorm"
 )
 
+/*貸出処理ーuserID+bookIDを受け取る*/
 func BorrowBook(w http.ResponseWriter, r *http.Request) {
-	var loan models.Loan
-	if err := decodeBody(r, &loan); err != nil {
+	
+	type Info struct {
+		UserID	int		`json:"user_id"`
+		BookID  int     `json:"book_id"`
+	}
+
+	var info Info
+
+	if err := decodeBody(r, &info); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 
-	loan.LoanDate = time.Now()
+	loan := models.Loan{
+		UserID: uint(info.UserID), 
+		BookID: uint(info.BookID),
+		LoanDate: time.Now(),
+	}
+
+	currentLoan := models.CurrentLoan{
+		UserID: uint(info.UserID),
+		BookID: uint(info.BookID),
+		LoanDate: time.Now(),
+	}
+	
 
 	if err := db.DB.Create(&loan).Error; err != nil {
 		http.Error(w, "Failed to borrow book", http.StatusInternalServerError)
 		return
 	}
 
-	respondJSON(w, http.StatusOK,loan)
+	if err := db.DB.Create(&currentLoan).Error; err != nil {
+		http.Error(w, "Failed to borrow book", http.StatusInternalServerError)
+		return
+	}
+
+	if err := db.DB.Model(&models.Book{}).
+					Where("id = ?", info.BookID).
+					Update("available_quantity", gorm.Expr("available_quantity - ?", 1)).Error; 
+	err != nil {
+		http.Error(w, "Failed to borrow book", http.StatusInternalServerError)
+		return
+	}
+
+	respondJSON(w, http.StatusOK,info)
 
 }
 
+/*返却ーuserID+bookID*/
 func ReturnBook(w http.ResponseWriter, r *http.Request) {
-	var loan models.Loan
-	if err := decodeBody(r, &loan); err != nil {
+	type Info struct {
+		UserID	int		`json:"user_id"`
+		BookID  int     `json:"book_id"`
+	}
+
+	var info Info
+
+	if err := decodeBody(r, &info); err != nil {
 		http.Error(w, "Invalid request", http.StatusBadRequest)
 		return
 	}
 
-	now := time.Now()
-	loan.ReturnDate = &now
-
-	if err := db.DB.Model(&loan).Where("id = ?", loan.ID).Update("return_date", loan.ReturnDate).Error; err != nil {
-		http.Error(w, "Failed to return book ", http.StatusInternalServerError)
+	if err := db.DB.Model(&models.CurrentLoan{}).
+					Where("user_id = ? AND book_id = ?", info.UserID, info.BookID).
+					Delete(&models.CurrentLoan{}).
+					Error; 
+	err != nil {
+		http.Error(w, "Failed return", http.StatusInternalServerError)
 		return
 	}
+	db.DB.Model(&models.Book{}).Where("id = ?", info.BookID).Update("available_quantity", gorm.Expr("available_quantity + ?", 1))
 
-	respondJSON(w, http.StatusOK, loan)
+	if err := db.DB.Model(&models.Loan{}).Where("user_id = ? AND book_id = ?", info.UserID, info.BookID).
+	Update("return_date", time.Now()).Error; err != nil {
+		http.Error(w, "failed", http.StatusInternalServerError)
+		return  
+    }
+
+	respondJSON(w, http.StatusOK, info)
 }
