@@ -140,6 +140,30 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, user)
 }
 
+/*ユーザー情報編集*/
+func UpdateUser(w http.ResponseWriter, r *http.Request) {
+	var userUpdates struct {
+		ID			int		`json:"id"`
+		Username	string	`json:"username"`
+		IconURL		string	`json:"iconURL"`
+	}
+
+	if err := decodeBody(r, &userUpdates); err != nil {
+		http.Error(w, "Invalid request", http.StatusBadRequest)
+		return
+	}
+
+	if err := db.DB.Model(&models.User{}).Where("id = ?", userUpdates.ID).Updates(models.User{
+		Username: 	userUpdates.Username,
+		IconURL:	userUpdates.IconURL,
+	}).Error; err != nil {
+		http.Error(w, "Failed to update", http.StatusInternalServerError)
+		return
+	}
+
+	respondJSON(w, http.StatusOK,userUpdates)
+}
+
 /*認証ミドルウェア。ルーティングで使う*/
 func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

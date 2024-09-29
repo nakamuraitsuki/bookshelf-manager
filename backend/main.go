@@ -46,6 +46,8 @@ func main() {
 	http.HandleFunc("/api/login", handlers.HandleCORS(handlers.Login))
 
 	http.HandleFunc("/api/user", handlers.HandleCORS(handlers.GetUserHandler))
+
+	http.HandleFunc("api/user/update", handlers.HandleCORS(handlers.UpdateUser))
 	
 	fmt.Println("http://localhost:8080でサーバーを起動します")
 	http.ListenAndServe(":8080", nil)
