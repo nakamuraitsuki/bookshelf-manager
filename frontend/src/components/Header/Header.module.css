@@ -1,3 +1,25 @@
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.userCard{
+    display:flex;
+    align-items: center;
+}
+
+.title{
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.username {
+    font-size: 1.5rem;
+    margin-right:20px;
+}
+
 .card{
     width:auto;
     margin-left:12px;

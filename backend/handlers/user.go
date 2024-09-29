@@ -1,13 +1,15 @@
 package handlers
 
 import (
-	"net/http"
-	"golang.org/x/crypto/bcrypt"
-	"github.com/dgrijalva/jwt-go"
-	"time"
-	"fmt"
 	"backend/db"
 	"backend/models"
+	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
+	"github.com/dgrijalva/jwt-go"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type RegisterRequest struct {
@@ -102,9 +104,31 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 /*ログインしてるユーザーの情報を取ってくる*/
 func GetUserHandler(w http.ResponseWriter, r *http.Request) {
+	
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		http.Error(w, "Authrization header is missing", http.StatusUnauthorized)
+		return
+	}
+
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+
 	/*tokenを元にID取得*/
-	token, _ := jwt.Parse(r.Header.Get("Authorization"), nil)
-	claims := token.Claims.(jwt.MapClaims)
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error){
+		return []byte("nakamura"), nil
+	})
+	if err != nil || !token.Valid {
+		http.Error(w, "Invalid token", http.StatusUnauthorized)
+		return
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		http.Error(w, "Invalid claims", http.StatusUnauthorized)
+		return
+	}
+
+
 	userID := claims["sub"].(float64)
 
 	var user models.User

@@ -4,7 +4,7 @@ import { SemanticClassificationFormat } from 'typescript';
 /*AuthContextの定義型*/
 interface AuthContextType {
     isAuthenticated: boolean;
-    login: () => void;
+    login: (token: string) => void;
     logout: () => void;
 }
 
@@ -26,7 +26,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
         }
     },[]);
     
-    const login = () => {
+    const login = (token: string) => {
+        localStorage.setItem('token', token);
         setIsAuthenticated(true);
     };
 

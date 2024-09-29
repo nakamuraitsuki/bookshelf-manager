@@ -9,6 +9,7 @@ import Search from './pages/Search/Search';
 import Register from './pages/Register/Register';
 import Login from './pages/Login/Login';
 import Mypage from './pages/Mypage/Mypage';
+import { Header } from './components';
 
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
     <div>
       <AuthProvider>
         <BrowserRouter>
+          <Header/>
           <Routes>
             <Route exact path="/" element={<Home/>}/>
             <Route path = "/add" element={<Add/>}/>
