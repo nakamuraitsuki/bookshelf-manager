@@ -5,7 +5,7 @@
     display: block;
     text-decoration: none;
     color:black;
-    border-bottom: 1px solid #ddd; /* ボーダーの例 */
+    border-bottom: 1px solid #ddd; 
     padding: 16px;
     transition: box-shadow 0.3s ease; /* ホバー時のアニメーション */
 }

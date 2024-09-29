@@ -1,0 +1,42 @@
+.field {
+    text-align: center;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.inputLabel {
+    font-size: 1.5rem;
+}
+
+.formField{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 0 auto;
+}
+
+.inputBox {
+    margin:20px;
+    width:312px;
+    height:32px;
+    font-size: 1.5rem;
+}
+.inputBox::-webkit-inner-spin-button,
+.inputBox::-webkit-outer-spin-button{
+    -webkit-appearance: none;
+}
+
+.submitButton{
+    border-radius:8px;
+    width:150px;
+    font-size: 1.5rem;
+    background-color: #027BEE;
+    color:#fff;
+    border:none;
+    box-shadow: -5px -5px 4px -2px #1149DB inset;
+}
+.submitButton:active{
+    box-shadow: none;
+}
