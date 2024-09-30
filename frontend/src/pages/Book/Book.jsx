@@ -7,7 +7,7 @@ import { useAuth } from '../../components'
 const Book = () => {
     /*slugは本のidにする予定*/
     const { id } = useParams();
-    const [userID, setUserID] = useState(null);
+    const [user, setUser] = useState(null);
     const [bookInfo,setBookInfo] = useState(null);
     const [loanStatus, setLoanStatus] = useState(null);
     const { isAuthenticated } = useAuth();
@@ -45,14 +45,18 @@ const Book = () => {
     };
 
     const fetchLoanStatus = async () => {
+        console.log("状況を取得する関数発火");
         if (isAuthenticated) {
+            console.log("ログインしている")
             try {
                 const loanEndpoint = `http://localhost:8080/api/currentloans?userID=${userID}&bookID=${id}`; 
                 const response = await axios.get(loanEndpoint);
                 setLoanStatus(response.data); // 貸出情報を取得
+                console.log("取得した！結果これ",loanStatus);
             } catch (error) {
                 if (error.response && error.response.status === 404) {
                     setLoanStatus(null); // 貸出中でない場合
+                    console.log("404でした")
                 } else {
                     console.error("Error:", error);
                 }
