@@ -84,6 +84,10 @@ const Book = () => {
             fetchLoanStatus();
         }
     }, [user, id, isAuthenticated]);
+
+    useEffect(() => {
+        fetchBookInfo();
+    },[loanStatus]);
     
     
         if (bookInfo == null) {
@@ -121,14 +125,29 @@ const Book = () => {
         return (
             <div>
                 <p>『{bookInfo.title}』の詳細ページ</p>
-                {isAuthenticated && (
+                {isAuthenticated ? (
                     <div>
-                        {loanStatus ? (
-                            <button onClick={handleReturn}>返却</button>
+                        {bookInfo.available_quantity === 0 ? (
+                            loanStatus ? (
+                                <div>
+                                    <button onClick={handleReturn}>返却</button>
+                                    <p>すべて借りられています</p>
+                                </div>
+                            ) : (
+                                <p>すべて借りられています。</p>
+                            )
                         ) : (
-                            <button onClick={handleBorrow}>貸出</button>
+                            <div>
+                                {loanStatus ? (
+                                    <button onClick={handleReturn}>返却</button>
+                                ) : (
+                                    <button onClick={handleBorrow}>貸出</button>
+                                )}
+                            </div>
                         )}
                     </div>
+                ) : (
+                    <p>本を借りるにはログインする必要があります。</p>
                 )}
             </div>
         );
