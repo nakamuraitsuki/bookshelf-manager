@@ -11,4 +11,5 @@ type User struct {
 	IconURL		string	  `json:"iconURL"`
 	PasswordHash string    `json:"password_hash"`
 	CreatedAt   time.Time `json:"created_at"`
+	LoanBookID	[]int		`gorm:"type:json"`
 }

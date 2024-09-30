@@ -53,7 +53,7 @@ func main() {
 
 	http.HandleFunc("/api/return", handlers.HandleCORS(handlers.ReturnBook))
 
-	http.HandleFunc("/api/currentloans", handlers.HandleCORS(handlers.GetCurrentLoan))
+	http.HandleFunc("/api/loans", handlers.HandleCORS(handlers.GetCurrentLoanByBookID))
 	
 	fmt.Println("http://localhost:8080でサーバーを起動します")
 	http.ListenAndServe(":8080", nil)

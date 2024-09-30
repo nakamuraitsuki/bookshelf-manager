@@ -14,7 +14,7 @@ const Book = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
     
-    /* 書籍情報 */
+    /* ユーザー情報get*/
     const fetchUserData = async () => {
         try {
             const token = localStorage.getItem('token');
@@ -24,8 +24,8 @@ const Book = () => {
                         Authorization: `Bearer ${token}`,
                     },
                 });
-                setUserID(response.data.id)
-                console.log(userID)
+                setUser(response.data)
+                console.log("Userdata",user)
             } else{
                 console.log("ログアウト状態")
             }
@@ -34,32 +34,40 @@ const Book = () => {
         }
     };
 
+    /*書籍情報get*/
     const fetchBookInfo = async () => {
         try {
             const endpoint = `http://localhost:8080/api/books/${id}`;
             const response = await axios.get(endpoint);
             setBookInfo(response.data);
+            console.log("BookData",bookInfo);
         } catch (error) {
             console.error("Error:", error);
         }
     };
 
     const fetchLoanStatus = async () => {
-        console.log("状況を取得する関数発火");
-        if (isAuthenticated) {
-            console.log("ログインしている")
+        if(isAuthenticated) {
             try {
-                const loanEndpoint = `http://localhost:8080/api/currentloans?userID=${userID}&bookID=${id}`; 
+                const loanEndpoint = `http://localhost:8080/api/loans?bookID=${bookInfo.id}`
                 const response = await axios.get(loanEndpoint);
-                setLoanStatus(response.data); // 貸出情報を取得
-                console.log("取得した！結果これ",loanStatus);
-            } catch (error) {
-                if (error.response && error.response.status === 404) {
-                    setLoanStatus(null); // 貸出中でない場合
-                    console.log("404でした")
+                console.log("このリクエストを送った", loanEndpoint)
+
+                const loanData = response.data;
+                console.log("レスポンスはこれ",loanData)
+                console.log("比較するゆーざーIDはこれ",user.id)
+                const isUserBorrowed = loanData.some(loan => loan.UserID === user.id)
+
+                if(isUserBorrowed){
+                    setLoanStatus(true);
+                    console.log("借りてるよ")
                 } else {
-                    console.error("Error:", error);
+                    setLoanStatus(null);
+                    console.log("借りてないよ")
                 }
+            }   catch (error) {
+                console.error("貸出情報取得エラー", error);
+                setLoanStatus(null);
             }
         }
     };
@@ -72,10 +80,10 @@ const Book = () => {
     
     useEffect(() => {
         // userID が取得された後にのみ貸出状況を取得する関数を実行
-        if (userID) {
+        if (user && bookInfo) {
             fetchLoanStatus();
         }
-    }, [userID, id, isAuthenticated]);
+    }, [user, id, isAuthenticated]);
     
     
         if (bookInfo == null) {
@@ -89,10 +97,10 @@ const Book = () => {
         const handleBorrow = async () => {
             try {
                 await axios.post('http://localhost:8080/api/borrow', {
-                    user_id: userID,
+                    user_id: user.id,
                     book_id: bookInfo.id,
                 });
-                setLoanStatus({ bookId: bookInfo.id, userID }); 
+                setLoanStatus({ bookId: bookInfo.id, userId:user.id }); 
             } catch (error) {
                 console.error("Failed to borrow the book:", error);
             }
@@ -101,7 +109,7 @@ const Book = () => {
         const handleReturn = async () => {
             try {
                 await axios.post('http://localhost:8080/api/return', {
-                    user_id: userID,
+                    user_id: user.id,
                     book_id: bookInfo.id,
                 });
                 setLoanStatus(null); 
