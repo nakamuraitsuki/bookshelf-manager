@@ -112,3 +112,34 @@ func GetCurrentLoanByBookID(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, loans)
 	
 }
+
+func GetCurrentLoanByUserID(w http.ResponseWriter, r *http.Request) {
+	userIDStr := r.URL.Query().Get("userID")
+	log.Println("Received bookID:", userIDStr)
+
+	userID, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil {
+		http.Error(w, "Invalid book ID", http.StatusBadRequest)
+		return
+	}
+
+	var loans []models.CurrentLoan
+	if err := db.DB.Where("user_id = ?", userID).Find(&loans).Error; err!= nil {
+		http.Error(w, "failed to retrive loan information", http.StatusInternalServerError)
+		return
+	}
+
+	var borrowedBooks []models.Book
+	for _, loan := range loans {
+		var book models.Book
+		if err := db.DB.First(&book, loan.BookID).Error; err == nil {
+			borrowedBooks = append(borrowedBooks, book)
+		} else {
+			log.Printf("Failed to retrieve book with ID %d : %v", loan.BookID, err)
+		}
+	}
+
+
+	respondJSON(w, http.StatusOK, borrowedBooks)
+	
+}

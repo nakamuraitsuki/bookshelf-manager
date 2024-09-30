@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import styles from './Book.module.css'
 import { useAuth } from '../../components'
+import { BackButton } from '../../components'
 
 const Book = () => {
     /*slugは本のidにする予定*/
@@ -124,6 +125,7 @@ const Book = () => {
     
         return (
             <div>
+                <BackButton/>
                 <p>『{bookInfo.title}』の詳細ページ</p>
                 {isAuthenticated ? (
                     <div>
