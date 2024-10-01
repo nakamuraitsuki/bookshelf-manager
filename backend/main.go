@@ -47,8 +47,16 @@ func main() {
 
 	http.HandleFunc("/api/user", handlers.HandleCORS(handlers.GetUserHandler))
 
-	http.HandleFunc("api/user/update", handlers.HandleCORS(handlers.UpdateUser))
+	http.HandleFunc("/api/user/update", handlers.HandleCORS(handlers.UpdateUser))
+
+	http.HandleFunc("/api/borrow", handlers.HandleCORS(handlers.BorrowBook))
+
+	http.HandleFunc("/api/return", handlers.HandleCORS(handlers.ReturnBook))
+
+	http.HandleFunc("/api/loans", handlers.HandleCORS(handlers.GetCurrentLoanByBookID))
 	
+	http.HandleFunc("/api/currentloans", handlers.HandleCORS(handlers.GetCurrentLoanByUserID))
+
 	fmt.Println("http://localhost:8080でサーバーを起動します")
 	http.ListenAndServe(":8080", nil)
 }

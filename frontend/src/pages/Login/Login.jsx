@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import axios from 'axios'
-import { Navigate, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../components';
 import styles from "./Login.module.css"
 
@@ -62,7 +63,7 @@ const Login = () => {
                 {error && <p>{error}</p>}
                 <button type='submit' className={styles.submitButton}>ろぐいん</button>
             </form>
-
+            <Link to='/register'>ユーザー登録はこちら</Link>
         </div>
     );
 };
