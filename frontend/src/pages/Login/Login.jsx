@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../components';
+import { NormalButton, useAuth } from '../../components';
 import styles from "./Login.module.css"
 
 const Login = () => {
@@ -61,7 +61,7 @@ const Login = () => {
                     required
                 />
                 {error && <p>{error}</p>}
-                <button type='submit' className={styles.submitButton}>ろぐいん</button>
+                <NormalButton type='submit' label='ろぐいん' />
             </form>
             <Link to='/register'>ユーザー登録はこちら</Link>
         </div>

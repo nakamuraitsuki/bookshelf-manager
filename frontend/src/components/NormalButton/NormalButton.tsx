@@ -4,7 +4,7 @@ import styles from './NormalButton.module.css'
 type Props = {
     type: "submit"|"reset" | "button" | undefined,
     label: string,
-    onClick: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 export const NormalButton: React.FC<Props> = ({type, label, onClick}) => {

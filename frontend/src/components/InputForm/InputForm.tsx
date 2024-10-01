@@ -1,4 +1,5 @@
 import React from "react";
+import { NormalButton } from "../NormalButton/NormalButton";
 import styles from "./InputForm.module.css"
 
 type Props = {
@@ -38,12 +39,7 @@ export const InputForm: React.FC<Props> = ({
                     minLength={minLength}
                     placeholder={placeholder}
                 />
-                <button
-                    className={styles.submitButton}
-                    type="submit"
-                >
-                    {buttonText}
-                </button>
+                <NormalButton type="submit" label={buttonText}/>
             </form>
         </div>
     )
