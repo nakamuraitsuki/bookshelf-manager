@@ -3,7 +3,6 @@ package handlers
 import (
 	"backend/db"
 	"backend/models"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -165,32 +164,3 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK,userUpdates)
 }
 
-/*認証ミドルウェア。ルーティングで使う*/
-func AuthMiddleware(next http.HandlerFunc) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-
-		tokenString := r.Header.Get("Authorization")
-		if tokenString == ""{
-			http.Error(w, "Authorization header required", http.StatusUnauthorized)
-			return
-		}
-
-		/*検証*/
-		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error){
-			/*JWTの署名方法確認*/
-			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-				return nil, fmt.Errorf("unxpected signing method: %v", token.Header["alg"])
-			}
-
-			/*鍵返却*/
-			return []byte("nakamura"),nil
-		})
-
-		if err != nil || !token.Valid {
-			http.Error(w, "Invalid token", http.StatusUnauthorized)
-			return
-		}
-
-		next(w,r)/*トークン有効なら次のハンドラーを呼ぶ*/
-	}
-}
