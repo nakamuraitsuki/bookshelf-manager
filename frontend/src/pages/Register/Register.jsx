@@ -1,5 +1,6 @@
 import React,{useState} from 'react'
 import axios from 'axios'
+import { NormalButton } from '../../components'
 import { useNavigate } from 'react-router-dom'
 import styles from "./Register.module.css"
 
@@ -54,12 +55,7 @@ const Register = () => {
                     onChange={(e) => setPasswod(e.target.value)}
                     required
                 />
-                <button
-                    type="submit"
-                    className={styles.submitButton}
-                >
-                    登録
-                </button>
+                <NormalButton type='submit' label='登録'/>
             </form>
         </div>
     );

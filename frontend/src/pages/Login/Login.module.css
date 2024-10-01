@@ -28,15 +28,3 @@
     -webkit-appearance: none;
 }
 
-.submitButton{
-    border-radius:8px;
-    width:150px;
-    font-size: 1.5rem;
-    background-color: #027BEE;
-    color:#fff;
-    border:none;
-    box-shadow: -5px -5px 4px -2px #1149DB inset;
-}
-.submitButton:active{
-    box-shadow: none;
-}

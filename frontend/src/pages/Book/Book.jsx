@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
-import styles from './Book.module.css'
-import { useAuth } from '../../components'
-import { BackButton } from '../../components'
+import { BackButton, NormalButton, useAuth } from '../../components'
+
 
 const Book = () => {
     /*slugは本のidにする予定*/
@@ -13,7 +12,6 @@ const Book = () => {
     const [loanStatus, setLoanStatus] = useState(null);
     const { isAuthenticated } = useAuth();
     const [error, setError] = useState(null);
-    const navigate = useNavigate();
     
     /* ユーザー情報get*/
     const fetchUserData = async () => {
@@ -91,69 +89,70 @@ const Book = () => {
     },[loanStatus]);
     
     
-        if (bookInfo == null) {
-            return (
-                <div>
-                    <h1>NOT FOUND</h1>
-                </div>
-            );
+
+    
+    const handleBorrow = async () => {
+        try {
+            await axios.post('http://localhost:8080/api/borrow', {
+                user_id: user.id,
+                book_id: bookInfo.id,
+            });
+            setLoanStatus({ bookId: bookInfo.id, userId:user.id });             
+        } catch (error) {
+            console.error("Failed to borrow the book:", error);
         }
+    };
     
-        const handleBorrow = async () => {
-            try {
-                await axios.post('http://localhost:8080/api/borrow', {
-                    user_id: user.id,
-                    book_id: bookInfo.id,
-                });
-                setLoanStatus({ bookId: bookInfo.id, userId:user.id }); 
-            } catch (error) {
-                console.error("Failed to borrow the book:", error);
-            }
-        };
-    
-        const handleReturn = async () => {
-            try {
-                await axios.post('http://localhost:8080/api/return', {
-                    user_id: user.id,
-                    book_id: bookInfo.id,
-                });
-                setLoanStatus(null); 
-            } catch (error) {
-                console.error("Failed to return the book:", error);
-            }
-        };
-    
+    const handleReturn = async () => {
+        try {
+            await axios.post('http://localhost:8080/api/return', {
+                user_id: user.id,
+                book_id: bookInfo.id,
+            });                
+            setLoanStatus(null); 
+        } catch (error) {
+            console.error("Failed to return the book:", error);
+        }
+    };
+
+    if (bookInfo == null) {
         return (
             <div>
-                <BackButton/>
-                <p>『{bookInfo.title}』の詳細ページ</p>
-                {isAuthenticated ? (
-                    <div>
-                        {bookInfo.available_quantity === 0 ? (
-                            loanStatus ? (
-                                <div>
-                                    <button onClick={handleReturn}>返却</button>
-                                    <p>すべて借りられています</p>
-                                </div>
-                            ) : (
-                                <p>すべて借りられています。</p>
-                            )
-                        ) : (
-                            <div>
-                                {loanStatus ? (
-                                    <button onClick={handleReturn}>返却</button>
-                                ) : (
-                                    <button onClick={handleBorrow}>貸出</button>
-                                )}
-                            </div>
-                        )}
-                    </div>
-                ) : (
-                    <p>本を借りるにはログインする必要があります。</p>
-                )}
+                <h1>NOT FOUND</h1>
             </div>
-        );
-    };
+            );
+    }
+    return (
+        <div>
+            <BackButton/>
+            <p>『{bookInfo.title}』の詳細ページ</p>
+            {isAuthenticated ? (
+                <div>
+                    {bookInfo.available_quantity === 0 ? (
+                        loanStatus ? (
+                            <div>
+                                <NormalButton type='button' label='返却' onClick={handleReturn}/>
+                                <p>すべて借りられています</p>
+                            </div>
+                        ) : (
+                            <p>すべて借りられています。</p>
+                        )
+                    ) : (
+                        <div>
+                            {loanStatus ? (
+                                <NormalButton type='button' label='返却' onClick={handleReturn}/>
+                            ) : (
+                                <NormalButton type='button' label='貸出' onClick={handleBorrow}/>
+                            )}
+                        </div>
+                    )}
+                </div>
+            ) : (
+                <p>本を借りるにはログインする必要があります。</p>
+            )}
+        </div>
+    );
+};
     
     export default Book;
     
