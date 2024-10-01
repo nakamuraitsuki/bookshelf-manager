@@ -8,6 +8,6 @@ type Props = {
 
 export const NormalButton: React.FC<Props> = ({label, onClick}) => {
     return(
-        <button onClick={onClick} className={styles.normalButton}>{label}</button>
+        <button type='button' onClick={onClick} className={styles.normalButton}>{label}</button>
     )
 }
